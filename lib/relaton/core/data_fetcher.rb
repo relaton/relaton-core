@@ -66,6 +66,7 @@ module Relaton::Core
     def parse_and_save(doc)
       bibitem = parse(doc)
       save_bib(bibitem)
+      index_add_or_update(bibitem)
     end
 
     #
@@ -76,13 +77,13 @@ module Relaton::Core
     # @return [void]
     #
     def save_bib(bib)
-      #search_instance_translation bib
       file = get_output_file(bib)
-      #merge_links bib, file
       File.write file, serialize(bib), encoding: "UTF-8"
-      # why do we need to know filename to update index?
-      index.add_or_update self.get_identifier_class.parse(bib.docidentifier.first.id), file
-      #old_index.add_or_update bib.docidentifier.first.id, file
+    end
+
+    def index_add_or_update(bib)
+      index.add_or_update self.class.get_identifier_class.parse(bib.docidentifier.first.id),
+                          get_output_file(bib)
     end
 
     #
