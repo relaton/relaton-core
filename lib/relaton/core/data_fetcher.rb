@@ -1,6 +1,6 @@
 module Relaton::Core
   class DataFetcher
-    attr_accessor :docs
+    # attr_accessor :docs
     #
     # Initialize fetcher
     #
@@ -11,14 +11,9 @@ module Relaton::Core
       @output = output
       @format = format
       @ext = format.sub "bibxml", "xml"
-      @files = []
-      @docs = []
-    end
-
-    def index
-      @index ||= Relaton::Index.find_or_create self.class::INDEX_TYPE,
-                                               file: self.class::INDEX_FILE,
-                                               pubid_class: self.class.get_identifier_class
+      @files = Set.new
+      # @docs = []
+      @errors = Hash.new(true)
     end
 
     # API method for external service
@@ -32,58 +27,35 @@ module Relaton::Core
       puts "Done in: #{(t2 - t1).round} sec."
     end
 
-    def self.get_identifier_class
-      raise NotImplementedError, "#{self.class}#get_identifier_class method must be implemented"
-    end
-
     def fetch
-      fetch_docs ACTIVE_PUBS_URL
-      fetch_docs OBSOLETE_PUBS_URL, retired: true
-      index.save
+      raise NotImplementedError, "#{self.class}#fetch method must be implemented"
     end
 
-    # Parse hash and return RelatonBib
-    # @param [Hash] doc document data
-    # @return [RelatonBib]
-    def parse(doc)
-      raise NotImplementedError, "#{self.class}#parse method must be implemented"
+    def gh_issue
+      return @gh_issue if defined? @gh_issue
+
+      @gh_issue = Relaton::Logger::Channels::GhIssue.new(*gh_issue_channel)
+      Relaton.logger_pool[:gh_issue] = Relaton::Logger::Log.new(@gh_issue, levels: [:error])
+      @gh_issue
     end
 
-    # @param [RelatonBib::BibliographicItem] bib
+    def gh_issue_channel
+      raise NotImplementedError, "#{self.class}#gh_issue_channel method must be implemented"
+    end
+
+    def repot_errors
+      @errors.select { |_, v| v }.each_key { |k| log_error "Failed to fetch #{k}" }
+      gh_issue.create_issue
+    end
+
+    def log_error(_msg)
+      raise NoMatchingPatternError, "#{self.class}#log_error method must be implemented"
+    end
+
+    # @param [String] document ID
     # @return [String] filename based on PubID identifier
-    def get_output_file(bib)
-      File.join @output, "#{bib.docidentifier.first.id.gsub(/[.\s-]+/, '-')}.#{@ext}"
-    end
-
-    #
-    # Parse document and save to file
-    #
-    # @param [Hash] doc document data
-    # @param [Boolean] retired if true then document is retired
-    #
-    # @return [void]
-    #
-    def parse_and_save(doc)
-      bibitem = parse(doc)
-      save_bib(bibitem)
-      index_add_or_update(bibitem)
-    end
-
-    #
-    # Save bibitem to file
-    #
-    # @param [RelatonBib::BibliographicItem] bib bibitem
-    #
-    # @return [void]
-    #
-    def save_bib(bib)
-      file = get_output_file(bib)
-      File.write file, serialize(bib), encoding: "UTF-8"
-    end
-
-    def index_add_or_update(bib)
-      index.add_or_update self.class.get_identifier_class.parse(bib.docidentifier.first.id),
-                          get_output_file(bib)
+    def output_file(docid)
+      File.join @output, "#{docid.downcase.gsub(/[.\s\/-]+/, '-')}.#{@ext}"
     end
 
     #
@@ -94,11 +66,19 @@ module Relaton::Core
     # @return [String] serialized bibliographic item
     #
     def serialize(bib)
-      case @format
-      when "yaml" then bib.to_hash.to_yaml
-      when "xml" then bib.to_xml(bibdata: true)
-      else bib.send "to_#{@format}"
-      end
+      send "to_#{@format}", bib
+    end
+
+    def to_yaml(bib)
+      raise NotImplementedError, "#{self.class}#to_yaml method must be implemented"
+    end
+
+    def to_xml(bib)
+      raise NotImplementedError, "#{self.class}#to_xml method must be implemented"
+    end
+
+    def to_bibxml(bib)
+      raise NotImplementedError, "#{self.class}#to_bibxml method must be implemented"
     end
   end
 end

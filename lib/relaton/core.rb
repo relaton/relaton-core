@@ -1,3 +1,6 @@
-require "relaton_bib"
-require "relaton/index"
+require "relaton/logger"
+require_relative "core/version"
+require_relative "core/processor"
 require_relative "core/data_fetcher"
+require_relative "core/hit_collection"
+require_relative "core/workers_pool"
