@@ -17,17 +17,17 @@ module Relaton::Core
     end
 
     # API method for external service
-    def self.fetch(output: "data", format: "yaml")
+    def self.fetch(source = nil, output: "data", format: "yaml")
       t1 = Time.now
       puts "Started at: #{t1}"
       FileUtils.mkdir_p output
-      new(output, format).fetch
+      new(output, format).fetch(source)
       t2 = Time.now
       puts "Stopped at: #{t2}"
       puts "Done in: #{(t2 - t1).round} sec."
     end
 
-    def fetch
+    def fetch(source = nil)
       raise NotImplementedError, "#{self.class}#fetch method must be implemented"
     end
 

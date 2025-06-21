@@ -11,10 +11,10 @@ describe Relaton::Core::DataFetcher do
 
   describe "::fetch" do
     it "create data fetcher object and call instance method fetch" do
-      expect(FileUtils).to receive(:mkdir_p).with("data")
-      expect(described_class).to receive(:new).and_return subject
-      expect(subject).to receive(:fetch)
-      described_class.fetch
+      expect(FileUtils).to receive(:mkdir_p).with("dir")
+      expect(described_class).to receive(:new).with("dir", "xml").and_return subject
+      expect(subject).to receive(:fetch).with(:source)
+      described_class.fetch :source, output: "dir", format: "xml"
     end
   end
 
