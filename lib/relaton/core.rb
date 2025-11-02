@@ -1,5 +1,7 @@
 require "relaton/logger"
 require_relative "core/version"
+require_relative "core/array_wrapper"
+require_relative "core/hash_keys_sybolizer"
 require_relative "core/processor"
 require_relative "core/data_fetcher"
 require_relative "core/hit_collection"

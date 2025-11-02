@@ -24,15 +24,18 @@ module Relaton
       # @return [String]
       def inspect
         "<#{self.class}:#{format('%<id>#.14x', id: object_id << 1)} " \
-          "@text=\"#{@hit_collection&.text}\" " \
-          "@fetched=\"#{!@fetch.nil?}\" " \
-          "@fullIdentifier=\"#{@fetch&.shortref(nil)}\" " \
-          "@title=\"#{@hit[:code]}\">"
+          "@reference=\"#{@hit_collection&.ref}\" " \
+          "@fetched=\"#{fetched?}\" " \
+          "@docidentifier=\"#{@hit[:code]}\">"
       end
 
       # @return [RelatonBib::ItemData]
       def item
         raise "Not implemented"
+      end
+
+      def fetched?
+        !@item.nil?
       end
 
       # @param opts [Hash]
