@@ -19,6 +19,23 @@ RSpec.describe Relaton::Core::HitCollection do
     expect(subject.select!).to be_instance_of described_class
   end
 
+  it "select returns a new collection with independent hit copies" do
+    original = subject
+    selected = original.select { true }
+
+    expect(selected).to be_instance_of described_class
+    expect(selected).not_to equal original
+    expect(selected.size).to eq original.size
+
+    selected.each do |hit|
+      expect(hit.hit_collection.__getobj__).to equal selected
+    end
+
+    original.each do |hit|
+      expect(hit.hit_collection.__getobj__).to equal original
+    end
+  end
+
   xit "collection to xml" do
     expect(subject.to_xml).to eq %{<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<documents/>\n}
   end

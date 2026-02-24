@@ -1,4 +1,5 @@
 require "forwardable"
+require "weakref"
 require_relative "hit"
 
 module Relaton
@@ -77,6 +78,17 @@ module Relaton
       def select!(&block)
         @array.select!(&block)
         self
+      end
+
+      def select(&block)
+        array = @array.select(&block)
+        self.class.new(@ref, @year).tap do |hc|
+          new_array = array.map do |hit|
+            hit.dup.tap { |h| h.hit_collection = WeakRef.new(hc) }
+          end
+          hc.instance_variable_set(:@array, new_array)
+          hc.instance_variable_set(:@fetched, @fetched)
+        end
       end
 
       def reduce!(sum, &block)
