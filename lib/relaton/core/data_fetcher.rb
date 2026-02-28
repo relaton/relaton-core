@@ -1,3 +1,5 @@
+require "fileutils"
+
 module Relaton::Core
   class DataFetcher
     # attr_accessor :docs
