@@ -24,10 +24,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
   spec.required_ruby_version = Gem::Requirement.new(">= 3.1.0")
 
-  spec.add_development_dependency "rake", "~> 13.0"
-  spec.add_development_dependency "rspec", "~> 3.0"
-  spec.add_development_dependency "simplecov", "~> 0.21.2"
-
+  spec.add_dependency "psych", "~> 5.2.0" # versin 5.3.0 crashes
   spec.add_dependency "relaton-logger", "~> 0.2.0"
   # spec.add_dependency "relaton-bib", "~> 1.20.0"
   # spec.add_dependency "relaton-index", "~> 0.2.16"
