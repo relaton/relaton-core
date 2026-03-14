@@ -39,20 +39,11 @@ module Relaton
       end
 
       # @param opts [Hash]
-      # @option opts [Nokogiri::XML::Builder] :builder XML builder
       # @option opts [Boolean] :bibdata
-      # @option opts [String, Symbol] :lang language
       # @return [String] XML
-      # def to_xml(**opts)
-      #   if opts[:builder]
-      #     fetch.to_xml(**opts)
-      #   else
-      #     builder = Nokogiri::XML::Builder.new(encoding: "UTF-8") do |xml|
-      #       fetch.to_xml(**opts.merge(builder: xml))
-      #     end
-      #     builder.doc.root.to_xml
-      #   end
-      # end
+      def to_xml(**opts)
+        item.to_xml(**opts)
+      end
     end
   end
 end

@@ -36,7 +36,7 @@ RSpec.describe Relaton::Core::HitCollection do
     end
   end
 
-  xit "collection to xml" do
+  it "collection to xml" do
     expect(subject.to_xml).to eq %{<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<documents/>\n}
   end
 

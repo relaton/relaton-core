@@ -1,4 +1,5 @@
 require "forwardable"
+require "nokogiri"
 require "weakref"
 require_relative "hit"
 
@@ -56,17 +57,16 @@ module Relaton
       #
       # @return [String] XML representation of the collection
       #
-      # def to_xml(**opts)
-      #   builder = Nokogiri::XML::Builder.new(encoding: "UTF-8") do |xml|
-      #     xml.documents do
-      #       @array.each do |hit|
-      #         hit.fetch
-      #         hit.to_xml(**opts.merge(builder: xml))
-      #       end
-      #     end
-      #   end
-      #   builder.to_xml
-      # end
+      def to_xml(**opts)
+        builder = Nokogiri::XML::Builder.new(encoding: "UTF-8") do |xml|
+          xml.documents do
+            @array.each do |hit|
+              xml << hit.to_xml(**opts)
+            end
+          end
+        end
+        builder.to_xml
+      end
 
       #
       # Selects matching hits and returns a new collection
