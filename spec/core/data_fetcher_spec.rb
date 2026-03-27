@@ -33,18 +33,31 @@ describe Relaton::Core::DataFetcher do
   end
 
   describe "#gh_issue_channel" do
-    it "raise NotImplementedError" do
-      expect { subject.gh_issue_channel }.to raise_error NotImplementedError
+    it "returns repo from ENV and default title" do
+      expect(subject.gh_issue_channel).to eq [ENV["GITHUB_REPOSITORY"], "Error fetching documents"]
     end
   end
 
   describe "#repot_errors" do
     before { subject.instance_variable_set(:@errors, { "key" => true }) }
 
-    it "call Util.error and create GH issue" do
-      expect(subject).to receive(:gh_issue).twice.and_return double(create_issue: nil)
-      expect(subject).to receive(:log_error).with("Failed to fetch key")
-      subject.repot_errors
+    context "when GITHUB_REPOSITORY is set" do
+      it "call log_error and create GH issue" do
+        gh = double(create_issue: nil)
+        subject.instance_variable_set(:@gh_issue, gh)
+        expect(subject).to receive(:gh_issue).and_return gh
+        expect(subject).to receive(:log_error).with("Failed to fetch key")
+        expect(gh).to receive(:create_issue)
+        subject.repot_errors
+      end
+    end
+
+    context "when GITHUB_REPOSITORY is not set" do
+      it "call log_error without creating GH issue" do
+        expect(subject).to receive(:gh_issue).and_return nil
+        expect(subject).to receive(:log_error).with("Failed to fetch key")
+        subject.repot_errors
+      end
     end
   end
 

@@ -36,19 +36,22 @@ module Relaton::Core
     def gh_issue
       return @gh_issue if defined? @gh_issue
 
-      @gh_issue = Relaton::Logger::Channels::GhIssue.new(*gh_issue_channel)
-      Relaton.logger_pool[:gh_issue] = Relaton::Logger::Log.new(@gh_issue, levels: [:error])
+      channel = gh_issue_channel
+      if channel[0]
+        @gh_issue = Relaton::Logger::Channels::GhIssue.new(*channel)
+        Relaton.logger_pool[:gh_issue] = Relaton::Logger::Log.new(@gh_issue, levels: [:error])
+      end
       @gh_issue
     end
 
     def gh_issue_channel
-      raise NotImplementedError, "#{self.class}#gh_issue_channel method must be implemented"
+      [ENV.fetch("GITHUB_REPOSITORY", nil), "Error fetching documents"]
     end
 
     def repot_errors
       gh_issue # register the channel before logging
       @errors.select { |_, v| v }.each_key { |k| log_error "Failed to fetch #{k}" }
-      gh_issue.create_issue
+      @gh_issue&.create_issue
     end
 
     def log_error(_msg)
