@@ -46,6 +46,7 @@ module Relaton::Core
     end
 
     def repot_errors
+      gh_issue # register the channel before logging
       @errors.select { |_, v| v }.each_key { |k| log_error "Failed to fetch #{k}" }
       gh_issue.create_issue
     end

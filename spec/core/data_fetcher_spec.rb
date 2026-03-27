@@ -42,7 +42,7 @@ describe Relaton::Core::DataFetcher do
     before { subject.instance_variable_set(:@errors, { "key" => true }) }
 
     it "call Util.error and create GH issue" do
-      expect(subject).to receive(:gh_issue).and_return double(create_issue: nil)
+      expect(subject).to receive(:gh_issue).twice.and_return double(create_issue: nil)
       expect(subject).to receive(:log_error).with("Failed to fetch key")
       subject.repot_errors
     end
