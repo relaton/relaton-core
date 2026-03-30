@@ -49,7 +49,7 @@ module Relaton
         [ENV.fetch("GITHUB_REPOSITORY", nil), "Error fetching documents"]
       end
 
-      def repot_errors
+      def report_errors
         gh_issue # register the channel before logging
         @errors.select { |_, v| v }.each_key { |k| log_error "Failed to fetch #{k}" }
         @gh_issue&.create_issue
