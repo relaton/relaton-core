@@ -48,7 +48,7 @@ describe Relaton::Core::DataFetcher do
         expect(subject).to receive(:gh_issue).and_return gh
         expect(subject).to receive(:log_error).with("Failed to fetch key")
         expect(gh).to receive(:create_issue)
-        subject.repot_errors
+        subject.report_errors
       end
     end
 
@@ -56,7 +56,7 @@ describe Relaton::Core::DataFetcher do
       it "call log_error without creating GH issue" do
         expect(subject).to receive(:gh_issue).and_return nil
         expect(subject).to receive(:log_error).with("Failed to fetch key")
-        subject.repot_errors
+        subject.report_errors
       end
     end
   end
