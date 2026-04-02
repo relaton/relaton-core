@@ -67,9 +67,42 @@ describe Relaton::Core::DataFetcher do
     end
   end
 
-  describe "#get_output_file" do
-    let(:file) { subject.output_file("ISO/IEC 123-4 Amd. 2") }
-    it { expect(file).to eq("data/iso-iec-123-4-amd-2.xml") }
+  describe "#output_file" do
+    it "replaces slashes, spaces, and dots with hyphens" do
+      file = subject.output_file("ISO/IEC 123-4 Amd. 2")
+      expect(file).to eq("data/iso-iec-123-4-amd-2.xml")
+    end
+
+    it "replaces dots with hyphens" do
+      expect(subject.output_file("IEEE 802.11")).to eq("data/ieee-802-11.xml")
+    end
+
+    it "replaces colons with hyphens" do
+      expect(subject.output_file("RFC:9110")).to eq("data/rfc-9110.xml")
+    end
+
+    it "replaces parentheses with hyphens" do
+      file = subject.output_file("ITU-T G.711 (2023)")
+      expect(file).to eq("data/itu-t-g-711-2023.xml")
+    end
+
+    it "collapses consecutive special chars into one hyphen" do
+      file = subject.output_file("ISO / IEC 27001:2022")
+      expect(file).to eq("data/iso-iec-27001-2022.xml")
+    end
+
+    it "strips trailing special chars" do
+      expect(subject.output_file("ISO 123.")).to eq("data/iso-123.xml")
+    end
+
+    it "passes through already clean IDs" do
+      expect(subject.output_file("rfc9110")).to eq("data/rfc9110.xml")
+    end
+
+    it "uses yaml extension for yaml format" do
+      fetcher = described_class.new("data", "yaml")
+      expect(fetcher.output_file("ISO 123")).to eq("data/iso-123.yaml")
+    end
   end
 
   describe "#serialize"  do
